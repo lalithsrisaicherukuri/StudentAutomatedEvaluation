@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/javascripts/assessmentscript.js" defer></script>
+</head>
+<body>
+    <!-- Inject student ID into a global JS variable -->
+    <script>
+        window.studentId = "<%= student._id %>";
+    </script>
+
+    <div class="exam">
+        <h1>TEST</h1>
+
+        <h3>Select Level</h3>
+        <select class="select" id="select">
+            <option value="" selected disabled>Select a level</option>
+            <option value="story">Story</option>
+            <option value="para">Paragraph</option>
+            <option value="sentence">Lines</option>
+            <option value="words">Words</option>
+            <option value="letters">Letters</option>
+        </select>
+
+        <div class="topic">
+            <div id="story">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec arcu in velit.</p>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+            </div>
+
+            <div id="para">
+                <p>Once upon a time, in a bright, sunny meadow, lived a tiny, playful butterfly named Flutter. She had wings as colorful as a rainbow, and she loved to dance among the flowers, flitting from one to another, always searching for the sweetest nectar.</p>
+            </div>
+
+            <div id="sentence">
+                <p>i am a good boy</p>
+            </div>
+
+            <div id="words">
+                <p>Alpha</p>
+            </div>
+
+            <div id="letters">
+                <p>A B C</p>
+            </div>
+        </div>
+
+        <div class="form">
+            <button type="button" id="startSpeech">Start Speech-to-Text</button>
+            <button type="button" id="stopSpeech">Stop Speech-to-Text</button>
+            <p id="output">Your speech will appear here...</p>
+        </div>
+    </div>
+</body>
+</html>

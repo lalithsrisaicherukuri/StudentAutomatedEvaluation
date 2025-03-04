@@ -1,0 +1,104 @@
+/* Reset default margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    height: 100vh;
+    margin: 0;
+    background-image: url('studybg.avif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Full-screen exam box */
+.exam {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.85); /* Slight transparency for background visibility */
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    text-align: center;
+    overflow: auto;
+}
+
+/* Heading */
+.exam h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    color: #333;
+}
+
+/* Select dropdown */
+.select {
+    width: 100%;
+    font-size: 1.2em;
+    padding: 12px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Topic sections */
+.topic > div {
+    display: none;
+    padding: 15px;
+    border: 1px solid #333;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 6px;
+    text-align: left;
+}
+
+/* Story section */
+#story {
+    display: block; /* Show by default */
+}
+
+/* Form styles */
+.form {
+    margin-top: 30px;
+}
+
+input[type="file"] {
+    margin: 15px 0;
+}
+
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Speech output */
+#output {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #444;
+    padding: 15px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background-color: #f4f4f4;
+    min-height: 50px;
+}
