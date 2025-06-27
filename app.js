@@ -7,6 +7,9 @@ const path = require('path');
 
 const Teacher = require('./models/teacher');
 const Student = require('./models/student');
+const Question = require('./models/question'); // Make sure path is correct
+const TestSet = require("./models/testSet");
+
 const natural = require('natural');
 const app = express();
 const { exec } = require('child_process');
@@ -39,6 +42,31 @@ app.get("/assessment",(req,res)=>{
 });
 
 
+
+// add question
+
+app.post("/addQuestion", async (req, res) => {
+  const { questionText, options, correctAnswerIndex } = req.body;
+
+  try {
+    const newQuestion = new Question({
+      questionText,
+      options,
+      correctAnswerIndex: parseInt(correctAnswerIndex),
+    });
+
+    await newQuestion.save();
+    res.redirect("back"); // Reloads the dashboard
+  } catch (error) {
+    console.error("Error adding question:", error);
+    res.status(500).send("Failed to add question.");
+  }
+});
+
+
+
+// register
+
 app.post("/register", async (req, res) => {
     let { email, password, employeeId, name, age } = req.body;
     
@@ -62,6 +90,15 @@ app.post("/register", async (req, res) => {
     });
 });
 
+// submit test
+
+app.post("/submit:studentId",isLoggedIn,async(reg,req)=>{
+
+
+});
+
+// login
+
 app.post("/login", async (req, res) => {
     let { email, password } = req.body;
     
@@ -72,24 +109,32 @@ app.post("/login", async (req, res) => {
         if (result) {
             let token = jwt.sign({ email: email, userId: teacher._id }, "shhhh");
             res.cookie("token", token);
-            res.redirect("/dashboard");
+            res.redirect(`/dashboard/${teacher._id}`);
         } else {
             res.redirect("/login");
         }
     });
 });
 
+
+//logout
+
 app.get("/logout", (req, res) => {
     res.cookie("token", "");
     res.redirect("/login");
 });
 
-app.get("/dashboard", isLoggedIn, async (req, res) => {
-    let teacher = await Teacher.findOne({ email: req.user.email }).populate("students");
-    res.render("dashboard", { teacher });
+
+// display 
+
+app.get("/display/:studentId",isLoggedIn, async(req, res) => {
+    const studentId = req.params.studentId;
+      const student = await Student.findById(studentId);
+  const marksArray = student.marks ; // Example array
+  res.render("display", { marks: JSON.stringify(marksArray) }); // Pass to frontend
 });
 
-
+// add student
 app.post('/addStudent', async (req, res) => {
     let { studentId, name, age, grade, teacherId } = req.body;
 
@@ -115,8 +160,45 @@ app.post('/addStudent', async (req, res) => {
     }
 });
 
+// create testSet
+
+app.post("/createTestSet", isLoggedIn, async (req, res) => {
+  const { testSetName, questionIds } = req.body;
+  const questionArray = Array.isArray(questionIds)
+    ? questionIds
+    : [questionIds];
+  await TestSet.create({
+    name: testSetName,
+    questions: questionArray,
+    createdBy: req.user._id, // or teacherId if not using sessions
+  });
+  res.redirect("/dashboard");
+});
+
+
+
+app.get("/dashboard/:employeeId", isLoggedIn, async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({ email: req.user.email }).populate(
+      "students"
+    );
+    const allQuestions = await Question.find();
+    const testSets = await TestSet.find();
+
+    res.render("dashboard", {
+      teacher,
+      allQuestions,
+      testSets, // send test sets for the modal
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading dashboard");
+  }
+});
+
+
 // GET route to render the assessment page for a student
-app.get('/assessment/:studentId', async (req, res) => {
+app.get('/assessment/:studentId', isLoggedIn,async (req, res) => {
     try {
       const studentId = req.params.studentId;
       const student = await Student.findById(studentId);
@@ -130,51 +212,45 @@ app.get('/assessment/:studentId', async (req, res) => {
       res.status(500).send("Error loading assessment page");
     }
   });
-  
-  // POST route to update the student's grade based on the similarity score
-  app.post('/assessment/:studentId/submit', async (req, res) => {
-    try {
-      const studentId = req.params.studentId;
-      const { similarity } = req.body;
-      const student = await Student.findById(studentId);
-      if (!student) {
-        return res.status(404).json({ error: "Student not found" });
-      }
-      
-      // Determine the grade increment based on similarity decile ranges
-      let increment = 0;
-      if (similarity >= 10 && similarity < 20) {
-        increment = 2;
-      } else if (similarity >= 20 && similarity < 30) {
-        increment = 3;
-      } else if (similarity >= 30 && similarity < 40) {
-        increment = 4;
-      } else if (similarity >= 40 && similarity < 50) {
-        increment = 5;
-      } else if (similarity >= 50 && similarity < 60) {
-        increment = 6;
-      } else if (similarity >= 60 && similarity < 70) {
-        increment = 7;
-      } else if (similarity >= 70 && similarity < 80) {
-        increment = 8;
-      } else if (similarity >= 80 && similarity < 90) {
-        increment = 9;
-      } else if (similarity >= 90 && similarity <= 100) {
-        increment = 10;
-      }
-      
-      // Update the student's grade with the calculated increment
-      student.grade += increment;
-      await student.save();
-      
-      res.json({ message: "Grade updated", newGrade: student.grade });
-    } catch (err) {
-      console.error("Error updating grade:", err);
-      res.status(500).json({ error: "Error updating grade" });
+
+app.post('/assessment/:studentId/submit', async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    const { similarity } = req.body;
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
     }
-  });
-  
-  
+
+    let increment = 0;
+    if (similarity >= 10 && similarity < 20) increment = 2;
+    else if (similarity >= 20 && similarity < 30) increment = 3;
+    else if (similarity >= 30 && similarity < 40) increment = 4;
+    else if (similarity >= 40 && similarity < 50) increment = 5;
+    else if (similarity >= 50 && similarity < 60) increment = 6;
+    else if (similarity >= 60 && similarity < 70) increment = 7;
+    else if (similarity >= 70 && similarity < 80) increment = 8;
+    else if (similarity >= 80 && similarity < 90) increment = 9;
+    else if (similarity >= 90 && similarity <= 100) increment = 10;
+
+    // Add new score to the marks array
+    student.marks.push(increment);
+
+    // Recalculate grade as average
+    let total = student.marks.reduce((a, b) => a + b, 0);
+    student.grade = total / student.marks.length;
+    await student.save();
+
+    // Redirect to the display page with the increment value
+    res.json({ message: "Grade updated", newGrade: student.grade });
+
+  } catch (err) {
+    console.error("Error updating grade:", err);
+    res.status(500).json({ error: "Error updating grade" });
+  }
+});
+
+  //delete student
   app.post('/deleteStudent/:studentId', async (req, res) => {
     try {
       const studentId = req.params.studentId;
@@ -193,12 +269,120 @@ app.get('/assessment/:studentId', async (req, res) => {
   });
   
 
+  // edit student
+  app.post("/edit/:studentId", async (req, res) => {
+    const studentId = req.params.studentId;
+    const { name, age} = req.body;
 
-app.post("/editStudent", isLoggedIn, async (req, res) => {
-    let { id, name, age, grade } = req.body;
-    await Student.findByIdAndUpdate(id, { name, age, grade });
-    res.redirect("/dashboard");
+    try {
+      await Student.findByIdAndUpdate(studentId, { name, age});
+      res.redirect("/dashboard"); // adjust if your route is different
+    } catch (err) {
+      res.status(500).send("Error updating student");
+    }
+  });
+
+  // written test
+app.get("/test/:studentId", isLoggedIn, async (req, res) => {
+  const { studentId } = req.params;
+  const { testSetId } = req.query;
+
+  try {
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).send("Student not found");
+
+    if (student.submittedTests.includes(testSetId)) {
+      return res.status(403).send("You have already submitted this test.");
+    } 
+
+    const testSet = await TestSet.findById(testSetId).populate("questions");
+    if (!testSet) return res.status(404).send("Test Set not found");
+
+    // ✅ Prevent browser from caching the test page
+    res.set({
+  "Cache-Control": "no-store, no-cache, must-revalidate, private",
+  "Pragma": "no-cache",
+  "Expires": "0"
 });
+
+    res.render("test", {
+      studentId,
+       testSetId,
+      questions: testSet.questions,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading test.");
+  }
+});
+ 
+
+  // check Key
+   
+app.post("/submitTest/:studentId", isLoggedIn, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { testSetId } = req.query;
+    const submittedAnswers = req.body.answers;
+
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).send("Student not found");
+
+    // ❌ Block resubmission for same testSet
+    if (student.submittedTests.includes(testSetId)) {
+      return res.status(403).send("Test already submitted.");
+    }
+
+    let correct = 0;
+    let total = 0;
+    let finalAnswers = [];
+
+    const questionIds = Object.keys(submittedAnswers);
+    const questions = await Question.find({ _id: { $in: questionIds } });
+
+    questions.forEach((question) => {
+      const qid = question._id.toString();
+      const correctIndex = question.correctAnswerIndex;
+      const userAnswer = parseInt(submittedAnswers[qid]);
+
+      const isCorrect = userAnswer === correctIndex;
+      if (isCorrect) correct++;
+      total++;
+
+      finalAnswers.push({
+        question: question.questionText,
+        selectedOption: question.options[userAnswer],
+        correctOption: question.options[correctIndex],
+        isCorrect,
+      });
+    });
+
+    student.writtenMarks.push(correct);
+    student.totalWrittenMarks.push(total);
+    student.submittedTests.push(testSetId); // ✅ Mark testSet as submitted
+
+    await student.save();
+
+    res.render("result", {
+      studentId,
+      correct,
+      total,
+      finalAnswers,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error evaluating test.");
+  }
+});
+
+app.get("/already-submitted", (req, res) => {
+  res.send("<h2>You have already submitted the test. You cannot go back to it.</h2>");
+});
+
+
+// start-speech
 
 app.get('/start-speech', (req, res) => {
     exec('python speech_to_text.py', (error, stdout, stderr) => {
@@ -260,6 +444,6 @@ app.get('/stop-speech', (req, res) => {
     res.json({ message: "Speech recognition stopped." });
 });
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+app.listen(4000, () => {
+    console.log("Server running on port 4000");
 });

@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.ejs": "html",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "functional": "cpp"
     }
 }

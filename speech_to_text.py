@@ -13,7 +13,8 @@ def SpeakText(command):
 try:
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2)
-        audio = r.listen(source)
+        # Listen for up to 30 seconds to capture longer phrases
+        audio = r.record(source,duration=30)
         text = r.recognize_google(audio).lower()
         SpeakText(text)
         

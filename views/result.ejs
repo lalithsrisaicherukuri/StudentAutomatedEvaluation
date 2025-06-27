@@ -1,0 +1,29 @@
+<h2>Result for Student ID: <%= studentId %>
+</h2>
+<h3>Score: <%= correct %> / <%= total %>
+</h3>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Question</th>
+        <th>Your Answer</th>
+        <th>Correct Answer</th>
+        <th>Status</th>
+    </tr>
+    <% finalAnswers.forEach(ans=> { %>
+        <tr>
+            <td>
+                <%= ans.question %>
+            </td>
+            <td>
+                <%= ans.selectedOption %>
+            </td>
+            <td>
+                <%= ans.correctOption %>
+            </td>
+            <td>
+                <%= ans.isCorrect ? '✅' : '❌' %>
+            </td>
+        </tr>
+        <% }); %>
+</table>

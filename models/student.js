@@ -5,7 +5,13 @@ const studentSchema = new mongoose.Schema({
     name: String,
     age: Number,
     grade: Number,
-    teacher: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" } // Linking to Teacher
+    writtenGrade : Number,
+    teacher: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" } ,// Linking to Teacher
+    marks:[Number],
+    writtenMarks : [Number],
+    totalWrittenMarks : [Number],
+    submittedTests: [{ type: mongoose.Schema.Types.ObjectId, ref: "TestSet" }]
+
 });
 
 module.exports = mongoose.model("Student", studentSchema);

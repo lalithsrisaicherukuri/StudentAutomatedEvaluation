@@ -1,0 +1,44 @@
+<h2>MCQ Test</h2>
+<div id="timer">30:00</div>
+
+<form id="testForm" method="POST" action="/submitTest/<%= studentId %>?testSetId=<%= testSetId %>">
+
+    <% questions.forEach((q, index)=> { %>
+        <div>
+            <p>
+                <%= index + 1 %>. <%= q.questionText %>
+            </p>
+            <% q.options.forEach((opt, i)=> { %>
+                <label>
+                    <input type="radio" name="answers[<%= q._id %>]" value="<%= i %>">
+                    <%= opt %>
+                </label><br>
+                <% }); %>
+        </div>
+        <hr>
+        <% }); %>
+            <button type="submit">Submit</button>
+</form>
+
+<script>
+
+    window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      window.location.href = "/already-submitted";
+    }
+  });
+
+    let totalTime = 60; // 30 minutes in seconds
+    const timerEl = document.getElementById('timer');
+
+    const timer = setInterval(() => {
+        const minutes = Math.floor(totalTime / 60);
+        const seconds = totalTime % 60;
+        timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (--totalTime < 0) {
+            clearInterval(timer);
+            document.getElementById('testForm').submit(); // auto submit
+        }
+    }, 1000);
+</script>

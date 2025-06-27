@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isRecording = false;
         fetch('/stop-speech');
         outputElement.innerText += ' [Stopped]';
+        // res.redirect("/display");
     }
 
     document.getElementById('startSpeech').addEventListener('click', startSpeech);

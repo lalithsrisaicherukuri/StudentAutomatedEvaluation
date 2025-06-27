@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel = "stylesheet" href = "/css/display.css">
+</head>
+<body>
+
+    <h2>Marks Graph</h2>
+
+    <canvas id="marksChart"></canvas>
+
+    <script>
+        // Define an array of numbers to plot
+        const marksData = <%= marks %>; // Example array
+        const attemptNumbers = marksData.map((_, index) => index + 1); // 1, 2, 3, ... for X-axis
+
+        // Plot the graph using Chart.js
+        const ctx = document.getElementById('marksChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: attemptNumbers,
+                datasets: [{
+                    label: 'Marks',
+                    data: marksData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.3 // Smooth line
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10,  // Y-axis range from 0 to 10
+                        ticks: {
+                            stepSize: 1  // Steps of 1 (0, 1, 2, ..., 10)
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Attempts"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
