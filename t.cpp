@@ -5,6 +5,7 @@ using namespace std;
 ll countTriplets(vector<ll>& arr, ll target) {
     ll n = arr.size();
   ll count = 0;
+  ll a = 0;
 
 
     for(ll i=0;i<n-2;i++) {
