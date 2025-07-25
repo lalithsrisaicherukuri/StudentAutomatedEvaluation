@@ -3,6 +3,9 @@ const axios = require('axios');
 // ✅ Replace with your actual API key
 const API_KEY = 'AIzaSyAtPwAMOcEBE4SD2cZwfWmYOBTh2WcZPq8';
 
+
+
+
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
 
 async function askGemini(prompt) {
@@ -23,4 +26,4 @@ async function askGemini(prompt) {
 }
 
 // 🧪 Example
-askGemini("explain ml in simple words");
+askGemini("\[ \text{Solve the initial–value problem}\quad \frac{d^{2}y}{dx^{2}} - 3\frac{dy}{dx} + 2y \;=\; e^{2x}, \qquad y(0)=1,\; y'(0)=0. \] see give me questions related to this from basic level to this level and necessary formulaes to solve it");

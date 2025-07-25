@@ -6,6 +6,7 @@ const studentSchema = new mongoose.Schema({
     age: Number,
     grade: Number,
     writtenGrade : Number,
+    password: String,
     teacher: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" } ,// Linking to Teacher
     marks:[Number],
     writtenMarks : [Number],

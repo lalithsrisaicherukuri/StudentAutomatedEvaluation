@@ -7,7 +7,7 @@
     <link href="/css/dashboard.css" rel="stylesheet">
 
     <script>
-        function editStudent(studentId, name, age, grade) {
+        function editStudent(studentId, name, age) {
             document.getElementById('editStudentId').value = studentId;
             document.getElementById('editName').value = name;
             document.getElementById('editAge').value = age;
@@ -15,25 +15,14 @@
             document.getElementById('editModal').style.display = 'block';
         }
 
-        function openTestSetModal(studentId) {
-            document.getElementById('modalStudentId').value = studentId;
-            document.getElementById('testSetForm').action = `/test/${studentId}`;
-            document.getElementById('testSetModal').style.display = 'block';
-        }
 
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
 
-        function closeTestSetModal() {
-            document.getElementById('testSetModal').style.display = 'none';
-        }
-
         window.onclick = function (event) {
             const editModal = document.getElementById('editModal');
-            const testSetModal = document.getElementById('testSetModal');
             if (event.target == editModal) closeEditModal();
-            if (event.target == testSetModal) closeTestSetModal();
         };
     </script>
 </head>
@@ -54,25 +43,19 @@
             </tr>
         </thead>
         <tbody>
-            <% teacher.students.forEach(student=> { %>
+            <% teacher.students.forEach(student => { %>
                 <tr>
+                    <td><%= student.studentId %></td>
+                    <td><%= student.name %></td>
+                    <td><%= student.age %></td>
                     <td>
-                        <%= student.studentId %>
+                        <%= student.marks.reduce((a, b) => a + b, 0) %> /
+                        <%= student.marks.length * 10 %>
                     </td>
                     <td>
-                        <%= student.name %>
+                        <%= student.writtenMarks.reduce((a, b) => a + b, 0) %> /
+                        <%= student.totalWrittenMarks.reduce((a, b) => a + b, 0) %>
                     </td>
-                    <td>
-                        <%= student.age %>
-                    </td>
-                    <td>
-                         <%= student.marks.reduce((a, b) => a + b, 0) %> /
-                         <%= student.marks.length*10 %>
-                    </td>
-                    <td>
-                <%= student.writtenMarks.reduce((a, b) => a + b, 0) %> /
-                <%= student.totalWrittenMarks.reduce((a, b) => a + b, 0) %>
-                     </td>
                     <td>
                         <div class="action-buttons">
                             <button class="edit-btn"
@@ -81,14 +64,11 @@
                                 onsubmit="return confirm('Are you sure?')">
                                 <button type="submit" class="delete-btn">Delete</button>
                             </form>
-                            <a href="/assessment/<%= student._id %>"><button class="test-btn">Take Test</button></a>
                             <a href="/display/<%= student._id %>"><button class="display-btn">Display</button></a>
-                            <button class="written-test-btn" onclick="openTestSetModal('<%= student._id %>')">Written
-                                Test</button>
                         </div>
                     </td>
                 </tr>
-                <% }) %>
+            <% }) %>
         </tbody>
     </table>
 
@@ -99,36 +79,51 @@
         <input type="text" name="name" placeholder="Student Name" required>
         <input type="number" name="age" placeholder="Age" required>
         <input type="number" name="grade" placeholder="Grade" required>
+        <input type = "password" name="password" placeholder="passwrd" required>
         <button type="submit">Add Student</button>
     </form>
 
-    <h3>Add New Question</h3>
-    <form action="/addQuestion" method="POST">
-        <input type="text" name="questionText" placeholder="Question Text" required>
-        <input type="text" name="options[]" placeholder="Option 1" required>
-        <input type="text" name="options[]" placeholder="Option 2" required>
-        <input type="text" name="options[]" placeholder="Option 3" required>
-        <input type="text" name="options[]" placeholder="Option 4" required>
-        <select name="correctAnswerIndex" required>
-            <option value="0">Correct: Option 1</option>
-            <option value="1">Correct: Option 2</option>
-            <option value="2">Correct: Option 3</option>
-            <option value="3">Correct: Option 4</option>
-        </select>
-        <button type="submit">Add Question</button>
-    </form>
+    <h3>Add New Math Question (LaTeX supported)</h3>
+<form action="/addQuestion" method="POST">
+    <!-- let the handler know who is adding the question -->
+    <input type="hidden" name="teacherId" value="<%= teacher._id %>" />
+
+    <textarea name="questionText"
+              placeholder="Enter LaTeX math like \\int_0^1 x^2 dx"
+              required></textarea><br>
+
+    <input type="text" name="options[]" placeholder="Option 1" required><br>
+    <input type="text" name="options[]" placeholder="Option 2" required><br>
+    <input type="text" name="options[]" placeholder="Option 3" required><br>
+    <input type="text" name="options[]" placeholder="Option 4" required><br>
+
+    <select name="correctAnswerIndex" required>
+      <option value="0">Correct: Option&nbsp;1</option>
+      <option value="1">Correct: Option&nbsp;2</option>
+      <option value="2">Correct: Option&nbsp;3</option>
+      <option value="3">Correct: Option&nbsp;4</option>
+    </select><br>
+
+    <button type="submit">Add Question</button>
+</form>
+
 
     <h3>Create Test Set</h3>
-    <form action="/createTestSet" method="POST">
-        <input type="text" name="testSetName" placeholder="Test Set Name" required>
-        <% allQuestions.forEach(q=> { %>
-            <div>
-                <input type="checkbox" name="questionIds" value="<%= q._id %>">
-                <%= q.questionText %>
-            </div>
-            <% }) %>
-                <button type="submit">Create Test Set</button>
-    </form>
+<form action="/createTestSet" method="POST">
+
+    <input type="hidden" name="teacherId" value="<%= teacher._id %>" />
+
+    <input type="text" name="testSetName" placeholder="Test Set Name" required />
+
+    <% allQuestions.forEach(q => { %>
+      <div>
+        <input type="checkbox" name="questionIds" value="<%= q._id %>" />
+        <span><%- q.questionText %></span>
+      </div>
+    <% }) %>
+
+    <button type="submit">Create Test Set</button>
+</form>
 
     <!-- Edit Modal -->
     <div id="editModal" class="modal">
@@ -151,17 +146,21 @@
             <h3>Select a Test Set</h3>
             <form id="testSetForm" method="GET">
                 <select name="testSetId" id="testSetSelect" required>
-                    <% testSets.forEach(set=> { %>
-                        <option value="<%= set._id %>">
-                            <%= set.name %>
-                        </option>
-                        <% }) %>
+                    <% testSets.forEach(set => { %>
+                        <option value="<%= set._id %>"><%= set.name %></option>
+                    <% }) %>
                 </select>
                 <input type="hidden" id="modalStudentId" name="studentId">
                 <button type="submit">Start Test</button>
             </form>
         </div>
     </div>
+
+    <!-- ✅ MathJax to render LaTeX questions -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
 </body>
 
 </html>

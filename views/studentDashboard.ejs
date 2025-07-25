@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link href="/css/dashboard.css" rel="stylesheet">
+
+    <script>
+        // ---------- modal helpers ----------
+        function openWrittenTestModal() {
+            document.getElementById('writtenTestModal').style.display = 'block';
+        }
+
+        function closeWrittenTestModal() {
+            document.getElementById('writtenTestModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside it
+        window.onclick = function (event) {
+            const wtModal = document.getElementById('writtenTestModal');
+            if (event.target === wtModal) closeWrittenTestModal();
+        };
+    </script>
+</head>
+
+<body>
+    <!-- ─────────────────────────────────────────  Heading  ───────────────────────────────────────── -->
+    <h2>Welcome, <%= student.name %>!</h2>
+
+    <!-- ─────────────────────────────────────────  Student details  ───────────────────────────────────────── -->
+    <h3>Your Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Age</th>
+                <th>Grade</th>
+                <th>MCQ Score</th>
+                <th>Written Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><%= student.studentId %></td>
+                <td><%= student.age %></td>
+                <td><%= student.grade %></td>
+                <td>
+                    <%= student.marks.reduce((a, b) => a + b, 0) %> /
+                    <%= student.marks.length * 10 %>
+                </td>
+                <td>
+                    <%= student.writtenMarks.reduce((a, b) => a + b, 0) %> /
+                    <%= student.totalWrittenMarks.reduce((a, b) => a + b, 0) %>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ─────────────────────────────────────────  Action buttons  ───────────────────────────────────────── -->
+    <h3>What would you like to do?</h3>
+    <div class="action-buttons">
+        <!-- Take MCQ test -->
+        <a href="/assessment/<%= student._id %>">
+            <button class="test-btn">Take Test</button>
+        </a>
+
+        <!-- Take written test (opens modal to pick a set) -->
+        <button class="written-test-btn" onclick="openWrittenTestModal()">Written Test</button>
+
+        <!-- Display previous results -->
+        <a href="/display/<%= student._id %>">
+            <button class="display-btn">Display Results</button>
+        </a>
+    </div>
+
+    <!-- ─────────────────────────────────────────  Written-test modal  ───────────────────────────────────────── -->
+    <div id="writtenTestModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeWrittenTestModal()">&times;</span>
+            <h3>Select a Written-Test Set</h3>
+            <form action="/test/<%= student._id %>" method="GET">
+                <select name="testSetId" required>
+                    <% testSets.forEach(set => { %>
+                        <option value="<%= set._id %>"><%= set.name %></option>
+                    <% }) %>
+                </select>
+                <button type="submit">Start</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─────────────────────────────────────────  MathJax (LaTeX support)  ───────────────────────────────────────── -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+</body>
+
+</html>

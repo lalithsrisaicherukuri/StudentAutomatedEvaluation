@@ -1,29 +1,57 @@
-<h2>Result for Student ID: <%= studentId %>
-</h2>
-<h3>Score: <%= correct %> / <%= total %>
-</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Result</title>
 
-<table border="1" cellpadding="5">
-    <tr>
+  <link rel="stylesheet" href="/css/result.css">
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <h2>Result for Student ID: <%= studentId %></h2>
+  <h3>Score: <%= correct %> / <%= total %></h3>
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
         <th>Question</th>
         <th>Your Answer</th>
         <th>Correct Answer</th>
         <th>Status</th>
-    </tr>
-    <% finalAnswers.forEach(ans=> { %>
+        <th>Gemini Feedback</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% let r = 0; /* index into geminiReplies */ %>
+      <% finalAnswers.forEach(ans => { %>
         <tr>
-            <td>
-                <%= ans.question %>
-            </td>
-            <td>
-                <%= ans.selectedOption %>
-            </td>
-            <td>
-                <%= ans.correctOption %>
-            </td>
-            <td>
-                <%= ans.isCorrect ? '✅' : '❌' %>
-            </td>
+          <td><%- ans.question %></td>
+          <td><%= ans.selectedOption %></td>
+          <td><%= ans.correctOption %></td>
+          <td><%= ans.isCorrect ? '✅' : '❌' %></td>
+          <td>
+            <% /* Calculate feedback content here */
+               let feedbackContent;
+               if (ans.isCorrect) {
+                 feedbackContent = '-';
+               } else {
+                 feedbackContent = geminiReplies[r++];
+               }
+            %>
+            <%- feedbackContent %>
+          </td>
         </tr>
-        <% }); %>
-</table>
+      <% }); %>
+    </tbody>
+  </table>
+</body>
+</html>
