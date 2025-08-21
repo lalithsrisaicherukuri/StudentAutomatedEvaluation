@@ -337,7 +337,7 @@ app.post("/submitTest/:studentId", isLoggedIn, async (req, res) => {
         const axios = require('axios');
         
         // ✅ Replace with your actual API key
-        const API_KEY = 'AIzaSyAZTRBM8MrgBT1K6Pj1LvQtINW_9htfxKo';
+        const API_KEY = '';
         
         const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
         
