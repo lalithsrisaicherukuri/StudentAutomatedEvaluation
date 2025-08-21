@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // ✅ Replace with your actual API key
-const API_KEY = 'AIzaSyAtPwAMOcEBE4SD2cZwfWmYOBTh2WcZPq8';
+const API_KEY = '';
 
 
 
